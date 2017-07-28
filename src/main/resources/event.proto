@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+option java_package = "tracker";
+option java_outer_classname = "Events";
+
+enum EventType {
+  UNKNOWN = 0;
+  IMPRESSION = 1;
+  CLICK = 2;
+  CONVERSION = 3;
+}
+
+// Input Data
+message Event {
+
+  // Unique event ID. UUID (128 bit), big endian.
+  bytes id = 1;
+
+  // Timestamp of the event. UTC timestamp millis.
+  uint64 timestamp = 2;
+
+  // Type of event.
+  EventType type = 3;
+
+  // Unique device (~ user) identifier. UUID (128 bit), big endian.
+  // Typically stored in a cookie in the browser.
+  bytes device_id = 4;
+}
+
+// Output Data
+message Result {
+  // Conversion event ID. UUID (128 bit), big endian.
+  bytes conversion_event_id = 1;
+
+  // Referring event ID. UUID (128 bit), big endian.
+  bytes referrer_event_id = 2;
+  
+  // Type of the referrer event (IMPRESSION or CLICK).
+  EventType referrer_type = 3;
+}
