@@ -40,7 +40,7 @@ the project contains:
 
 
 
-#How it works?
+# How it works?
 
 Manager get an envent, it uses partitioner to decide which worker node in the cluster send to. 
 By sending it in a ASYNC way, it goes back to read next event. 
@@ -53,7 +53,7 @@ If the event is a convention, it tries to find a referrer from the saved clicks 
 Since clicks has higher priority, it tries find validate(12h timeWindow) last_click first then impression. 
 
 
-#How to run?
+# How to run?
 
 1. compile,test and package.
 mvn package
