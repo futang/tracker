@@ -34,7 +34,7 @@ the project contains:
 2: Worker, it process events that come from the manager 
  and send the results back to the manager if necessary.
 3: SimpleMemStorage, it uses HashTable and Stack to keep it in memory.
- Stack is used because of the event steam is ordered by time ascendingly(FIFO).
+ Stack is used because of the event steam is ordered by time ascendingly(LIFO).
  It also auto clean old data(timeWindow)
 4: Partitioner, it find the Node index in the cluster according to the device id(UUID)
 
