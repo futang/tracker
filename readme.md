@@ -29,14 +29,10 @@ Keywords: Distributed and Asynchronous.
 
 the project contains:
 
-1: Manager, it handle the input and output stream. Maintain a cluster of worker node, 
- FIND the right worker node to process the event and send to it
-2: Worker, it process events that come from the manager 
- and send the results back to the manager if necessary.
-3: SimpleMemStorage, it uses HashTable and Stack to keep it in memory.
- Stack is used because of the event steam is ordered by time ascendingly(LIFO).
- It also auto clean old data(timeWindow)
-4: Partitioner, it find the Node index in the cluster according to the device id(UUID)
+* __Manager__: it handle the input and output stream. Maintain a cluster of worker node, find the right worker node to process the event and send to it
+* __Worker__: it process events that come from the manager and send the results back to the manager if necessary.
+* __SimpleMemStorage__: it uses HashTable and Stack to keep it in memory. Stack is used because of the event steam is ordered by time ascendingly(LIFO).It also auto clean old data(timeWindow)
+* __Partitioner__: it find the Node index in the cluster according to the device id(UUID)
 
 
 
