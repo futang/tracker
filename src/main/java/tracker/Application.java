@@ -24,6 +24,7 @@ import tracker.interfaces.Worker;
 public class Application {
     private static Manager manager;
     private static Worker worker;
+    private static RunMode runningMode;
     private static Logger logger = LogManager.getLogger();
 
     /**
@@ -32,29 +33,41 @@ public class Application {
      * @param mode
      *            RunMode which mode the app will run
      * @param os
-     *            OutputStream where the found referrer should go
+     *            Optional OutputStream where the found referrer should go,when app
+     *            is using manager mode
      */
     public Application(RunMode mode, OutputStream os) {
         try {
             Properties p = new Properties(System.getProperties());
             p.load(Application.class.getResourceAsStream("/app.properties"));
-            String managerRegister = p.getProperty("manager.register").toString();
-            String managerEventUrl = p.getProperty("manager.eventUrl").toString();
-            String workerRegister = p.getProperty("worker.register").toString();
-            int managerPort = Integer.parseInt(p.getProperty("manager.port"));
-            int timeWindow = Integer.parseInt(p.getProperty("timeWindow"));
-            int workerPort = Integer.parseInt(p.getProperty("worker.port"));
-            // read config end
-
-            if (mode == RunMode.MANAGER)
+            
+            if (mode == RunMode.MANAGER) {
+                String managerRegister = p.getProperty("manager.register").toString();
+                String managerEventUrl = p.getProperty("manager.eventUrl").toString();
+                int managerPort = Integer.parseInt(p.getProperty("manager.port"));
+                int timeWindow = Integer.parseInt(p.getProperty("timeWindow"));
                 manager = new ManagerImpl(managerPort, managerRegister, managerEventUrl, timeWindow, os);
-            else {
+            } else {
+                String workerRegister = p.getProperty("worker.register").toString();
+                int workerPort = Integer.parseInt(p.getProperty("worker.port"));
+                int timeWindow = Integer.parseInt(p.getProperty("timeWindow"));
                 worker = new WorkerImpl(workerPort, workerRegister, timeWindow);
             }
+            runningMode = mode;
         } catch (IOException e) {
             logger.error(e);
             System.exit(1);
         }
+    }
+
+    /**
+     * init the app in given mode
+     * 
+     * @param mode
+     *            RunMode which mode the app will run
+     */
+    public Application(RunMode mode) {
+        this(mode, null);
     }
 
     /**
@@ -85,12 +98,17 @@ public class Application {
     }
 
     private boolean start() {
-        if (null != manager)
+        if (null != manager) {
             return manager.start();
+        }
         if (null != worker) {
             return worker.start() && worker.register();
         }
         return false;
+    }
+
+    public static RunMode getRunningMode() {
+        return runningMode;
     }
 
     /**
@@ -107,7 +125,7 @@ public class Application {
             CommandLine cmd = parser.parse(options, args);
             Application app;
             if (cmd.hasOption("w")) {
-                app = new Application(RunMode.WORKER, System.out);
+                app = new Application(RunMode.WORKER);
                 app.start();
             } else {
                 app = new Application(RunMode.MANAGER, System.out);
