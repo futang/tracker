@@ -19,8 +19,8 @@ import tracker.interfaces.Manager;
 import tracker.interfaces.EventService;
 
 public class Application {
-    private static EventService service;
-    private static RunMode appMode;
+    private final EventService service;
+    private final RunMode mode;
     private static Logger logger = LogManager.getLogger();
 
     /**
@@ -35,18 +35,19 @@ public class Application {
      *            Optional OutputStream where the found referrer should go
      */
     public Application(RunMode mode, InputStream in, OutputStream os) {
+        Properties p = null;
         try {
-            Properties p = new Properties(System.getProperties());
+            p = new Properties(System.getProperties());
             p.load(Application.class.getResourceAsStream("/app.properties"));
-            service = new RoleFactory(p).getRunService(mode);
-            if (service instanceof Manager) {
-                ((Manager) service).setEventStreams(in, os);
-            }
-            appMode = mode;
         } catch (IOException e) {
             logger.error(e);
             System.exit(1);
         }
+        service = new RoleFactory(p).getRunService(mode);
+        if (service instanceof Manager) {
+            ((Manager) service).setEventStreams(in, os);
+        }
+        this.mode = mode;
     }
 
     /**
@@ -60,9 +61,9 @@ public class Application {
     private void start() {
         service.run();
     }
-
-    public static RunMode getRunningMode() {
-        return appMode;
+    
+    public RunMode getMode() {
+        return mode;
     }
 
     /**
