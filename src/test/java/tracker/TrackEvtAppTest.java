@@ -22,13 +22,4 @@ public class TrackEvtAppTest {
     public void tearDown() throws Exception {
     }
 
-    @Test
-    public void testWorkerExit() {
-        assertNotNull(worker.getWorker());
-    }
-    @Test
-    public void testWorker() {
-        assertNotNull(manager.getManager());
-    }
-
 }

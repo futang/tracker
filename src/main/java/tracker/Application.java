@@ -22,17 +22,8 @@ import tracker.interfaces.Manager;
 import tracker.interfaces.Worker;
 
 public class Application {
-    private Manager manager;
-    private Worker worker;
-
-    public Manager getManager() {
-        return manager;
-    }
-
-    public Worker getWorker() {
-        return worker;
-    }
-
+    private static Manager manager;
+    private static Worker worker;
     private static Logger logger = LogManager.getLogger();
 
     /**
