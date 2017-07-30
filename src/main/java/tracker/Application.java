@@ -24,13 +24,15 @@ public class Application {
     private static Logger logger = LogManager.getLogger();
 
     /**
-     * init the app in given mode
+     * init the app in given mode, if run the app as manager the input/output stream
+     * must be present
      * 
      * @param mode
      *            RunMode which mode the app will run
+     * @param in
+     *            Optional InputStream from which the events come from
      * @param os
-     *            Optional OutputStream where the found referrer should go,when app
-     *            is using manager mode
+     *            Optional OutputStream where the found referrer should go
      */
     public Application(RunMode mode, InputStream in, OutputStream os) {
         try {
@@ -42,20 +44,17 @@ public class Application {
             }
             appMode = mode;
         } catch (IOException e) {
-            
             logger.error(e);
             System.exit(1);
         }
     }
 
     /**
-     * init the app in given mode
+     * init the app in worker mode
      * 
-     * @param mode
-     *            RunMode which mode the app will run
      */
-    public Application(RunMode mode) {
-        this(mode, null, null);
+    public Application() {
+        this(RunMode.WORKER, null, null);
     }
 
     private void start() {
@@ -80,7 +79,7 @@ public class Application {
             CommandLine cmd = parser.parse(options, args);
             Application app;
             if (cmd.hasOption("w")) {
-                app = new Application(RunMode.WORKER);
+                app = new Application();
             } else {
                 app = new Application(RunMode.MANAGER, System.in, System.out);
             }
