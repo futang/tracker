@@ -14,17 +14,13 @@ import org.apache.commons.cli.ParseException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tracker.Events.Event;
 import tracker.datatypes.RunMode;
-import tracker.impl.ManagerImpl;
-import tracker.impl.WorkerImpl;
 import tracker.interfaces.Manager;
-import tracker.interfaces.Worker;
+import tracker.interfaces.EventService;
 
 public class Application {
-    private static Manager manager;
-    private static Worker worker;
-    private static RunMode runningMode;
+    private static EventService service;
+    private static RunMode appMode;
     private static Logger logger = LogManager.getLogger();
 
     /**
@@ -36,25 +32,17 @@ public class Application {
      *            Optional OutputStream where the found referrer should go,when app
      *            is using manager mode
      */
-    public Application(RunMode mode, OutputStream os) {
+    public Application(RunMode mode, InputStream in, OutputStream os) {
         try {
             Properties p = new Properties(System.getProperties());
             p.load(Application.class.getResourceAsStream("/app.properties"));
-            
-            if (mode == RunMode.MANAGER) {
-                String managerRegister = p.getProperty("manager.register").toString();
-                String managerEventUrl = p.getProperty("manager.eventUrl").toString();
-                int managerPort = Integer.parseInt(p.getProperty("manager.port"));
-                int timeWindow = Integer.parseInt(p.getProperty("timeWindow"));
-                manager = new ManagerImpl(managerPort, managerRegister, managerEventUrl, timeWindow, os);
-            } else {
-                String workerRegister = p.getProperty("worker.register").toString();
-                int workerPort = Integer.parseInt(p.getProperty("worker.port"));
-                int timeWindow = Integer.parseInt(p.getProperty("timeWindow"));
-                worker = new WorkerImpl(workerPort, workerRegister, timeWindow);
+            service = new RoleFactory(p).getRunService(mode);
+            if (service instanceof Manager) {
+                ((Manager) service).setEventStreams(in, os);
             }
-            runningMode = mode;
+            appMode = mode;
         } catch (IOException e) {
+            
             logger.error(e);
             System.exit(1);
         }
@@ -67,48 +55,15 @@ public class Application {
      *            RunMode which mode the app will run
      */
     public Application(RunMode mode) {
-        this(mode, null);
+        this(mode, null, null);
     }
 
-    /**
-     * read track event from the give input stream and let manager to process it
-     * 
-     * @param is
-     *            InputStream the event stream to read
-     */
-    private void readEvtStream(InputStream is) {
-        while (true) {
-            try {
-                Event ev = Event.parseDelimitedFrom(is);
-                if (ev == null) {
-                    logger.info("Stream end, QUIT");
-                    break;
-                } else {
-                    logger.debug("read event" + ev);
-                    if (!manager.processEvent(ev))
-                        logger.warn("Failed to process:" + ev);
-                }
-            } catch (IOException e) {
-                logger.error(e);
-                break;
-            }
-        }
-        if (!manager.stop())
-            logger.warn("Failed to stop manager");
-    }
-
-    private boolean start() {
-        if (null != manager) {
-            return manager.start();
-        }
-        if (null != worker) {
-            return worker.start() && worker.register();
-        }
-        return false;
+    private void start() {
+        service.run();
     }
 
     public static RunMode getRunningMode() {
-        return runningMode;
+        return appMode;
     }
 
     /**
@@ -126,12 +81,10 @@ public class Application {
             Application app;
             if (cmd.hasOption("w")) {
                 app = new Application(RunMode.WORKER);
-                app.start();
             } else {
-                app = new Application(RunMode.MANAGER, System.out);
-                app.start();
-                app.readEvtStream(System.in);
+                app = new Application(RunMode.MANAGER, System.in, System.out);
             }
+            app.start();
         } catch (ParseException e) {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("EventApp", options);

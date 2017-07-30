@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.google.protobuf.ByteString;
 
-import tracker.Events.Event;
+import tracker.datatypes.Events.Event;
 
 public class SimpleMemStorage implements StorageDAO {
     private final Map<ByteString, Stack<Event>> clicks = new HashMap<>(1000);

@@ -4,6 +4,7 @@
 package tracker.impl;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -22,8 +23,8 @@ import org.apache.http.nio.entity.NByteArrayEntity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tracker.Events.Event;
 import tracker.datatypes.Node;
+import tracker.datatypes.Events.Event;
 import tracker.interfaces.Manager;
 import tracker.interfaces.Partitioner;
 import tracker.interfaces.Worker;
@@ -43,7 +44,8 @@ import tracker.interfaces.Worker;
  *
  */
 public class ManagerImpl implements Manager {
-    private final OutputStream outputstream;
+    private static OutputStream outputstream;
+    private static InputStream inputstream;
     private final int partitionSize = 128;
     private final Node[] workers = new Node[partitionSize];
     private final Partitioner partitioner = new PartitionerImpl();
@@ -55,11 +57,11 @@ public class ManagerImpl implements Manager {
 
     private static Logger logger = LogManager.getLogger();
 
-    public ManagerImpl(int port, String register, String eventUrl, int timeWindow, OutputStream output) {
-        this.outputstream = output;
+    public ManagerImpl(int port, String register, String eventUrl, int timeWindow) {
         masterWorker = new WorkerImpl(port, register, timeWindow);
         node = new Node(eventUrl, port);
         httpClient = HttpAsyncClients.createDefault();
+        init();
     }
 
     /**
@@ -70,12 +72,41 @@ public class ManagerImpl implements Manager {
         registerWorker(node);
         httpClient.start();
         masterWorker.setManager(this);
+        masterWorker.run();
+    }
+
+    /**
+     * read track event from the give input stream and let manager to process it
+     * 
+     * @param is
+     *            InputStream the event stream to read
+     */
+    private void readEvtStream(InputStream is) {
+        while (true) {
+            try {
+                Event ev = Event.parseDelimitedFrom(is);
+                if (ev == null) {
+                    logger.info("Stream end, QUIT");
+                    break;
+                } else {
+                    logger.debug("read event" + ev);
+                    if (!processEvent(ev))
+                        logger.warn("Failed to process:" + ev);
+                }
+            } catch (IOException e) {
+                logger.error(e);
+                break;
+            }
+        }
     }
 
     @Override
-    public boolean start() {
-        init();
-        return masterWorker.start();
+    public void run() {
+        if (null == inputstream || null == outputstream)
+            throw new IllegalStateException("InputStream and OutputStream cannot be null");
+        readEvtStream(inputstream);
+        if (!stop())
+            logger.warn("Failed to stop manager");
     }
 
     /**
@@ -264,6 +295,22 @@ public class ManagerImpl implements Manager {
 
     public int getNodeSize() {
         return nodeSize;
+    }
+
+    @Override
+    public void setOutputStream(OutputStream os) {
+        outputstream = os;
+    }
+
+    @Override
+    public void setInputStream(InputStream in) {
+        inputstream = in;
+    }
+
+    @Override
+    public void setEventStreams(InputStream in, OutputStream os) {
+        setInputStream(in);
+        setOutputStream(os);
     }
 
 }

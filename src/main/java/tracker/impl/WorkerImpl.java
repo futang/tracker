@@ -23,12 +23,12 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tracker.Events.EventType;
-import tracker.Events.Event;
-import tracker.Events.Result;
 import tracker.dao.SimpleMemStorage;
 import tracker.dao.StorageDAO;
 import tracker.datatypes.Node;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.EventType;
+import tracker.datatypes.Events.Result;
 import tracker.interfaces.Manager;
 import tracker.interfaces.Worker;
 
@@ -138,31 +138,31 @@ public class WorkerImpl implements Worker {
     }
 
     @Override
-    public boolean start() {
+    public void run() {
         try {
             server.start();
-            if(null == this.localManager)
+            if (null == this.localManager)
                 register();
-            return true;
         } catch (IOException e) {
             logger.error(e);
         }
-        return false;
     }
 
     @Override
-    public void stop() {
+    public boolean stop() {
         server.shutdown(0, TimeUnit.MILLISECONDS);
         dao.stop();
+        return true;
     }
-    
+
     public void setManager(Manager manager) {
         localManager = manager;
     }
-    
+
     public void addNode(Node node) {
         localManager.registerWorker(node);
     }
+
     @Override
     public boolean unregister() {
         // TODO Auto-generated method stub

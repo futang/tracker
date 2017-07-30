@@ -10,25 +10,19 @@ import org.junit.Test;
 
 import com.google.protobuf.ByteString;
 
-import tracker.Events.Event;
-import tracker.Events.EventType;
-import tracker.Events.Result;
-import tracker.impl.ManagerImpl;
-import tracker.impl.WorkerImpl;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.EventType;
+import tracker.datatypes.Events.Result;
 
 public class WorkerImplTest {
-    private ManagerImpl manager;
     private WorkerImpl worker;
 
     @Before
-    public void setUp()  {
-        manager = new ManagerImpl(9998, "http://localhost:9998/register", "http://localhost:9998/event", 12,
-                System.out);
-        manager.start();
+    public void setUp() {
         worker = new WorkerImpl(9991, "http://localhost:9998/register", 1);
-        worker.start();
+        worker.run();
     }
-    
+
     @Test
     public void testProcessEvt() {
         Event.Builder event = Event.newBuilder();

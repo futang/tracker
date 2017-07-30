@@ -26,9 +26,9 @@ import org.apache.http.protocol.HttpCoreContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import tracker.Events.Event;
-import tracker.Events.Result;
 import tracker.datatypes.Node;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.Result;
 import tracker.interfaces.Worker;
 
 public class RequestHandler implements HttpAsyncRequestHandler<HttpRequest> {

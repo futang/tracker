@@ -14,9 +14,9 @@ import org.junit.Test;
 
 import com.google.protobuf.ByteString;
 
-import tracker.Events.EventType;
-import tracker.Events.Event;
 import tracker.dao.SimpleMemStorage;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.EventType;
 
 public class SimpleMemStorgeTest {
     SimpleMemStorage dao;

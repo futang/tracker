@@ -2,7 +2,7 @@ package tracker.dao;
 
 import java.util.Optional;
 
-import tracker.Events.Event;
+import tracker.datatypes.Events.Event;
 
 public interface StorageDAO {
     public void saveClick(Event click);

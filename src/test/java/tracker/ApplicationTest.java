@@ -11,7 +11,7 @@ public class ApplicationTest {
     @SuppressWarnings("static-access")
     @Test
     public void testRunManager() {
-        Application app = new Application(RunMode.MANAGER, System.out);
+        Application app = new Application(RunMode.MANAGER);
         assertTrue(RunMode.MANAGER == app.getRunningMode());
     }
     

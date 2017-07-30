@@ -5,16 +5,16 @@ package tracker.interfaces;
 
 import java.util.Optional;
 
-import tracker.Events.Event;
-import tracker.Events.Result;
 import tracker.datatypes.Node;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.Result;
 
 /**
  * 
  * @author fu
  *
  */
-public interface Worker {
+public interface Worker extends EventService{
     /**
      * process the given event save click and impression event try to find an
      * referrer for convent
@@ -41,9 +41,4 @@ public interface Worker {
     public void addNode(Node node);
     public void setManager(Manager manager);
     public boolean unregister();
-
-    public boolean start();
-
-    public void stop();
-
 }

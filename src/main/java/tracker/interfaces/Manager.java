@@ -1,9 +1,12 @@
 package tracker.interfaces;
 
-import tracker.Events.Event;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+import tracker.datatypes.Events.Event;
 import tracker.datatypes.Node;
 
-public interface Manager {
+public interface Manager extends EventService{
 
     /**
      * register a worker node to manager
@@ -56,8 +59,7 @@ public interface Manager {
      * reorganize all data if necessary
      */
     public void reorganize();
-
-    public boolean start();
-
-    public boolean stop();
+    public void setOutputStream(OutputStream os);
+    public void setInputStream(InputStream in);
+    public void setEventStreams(InputStream in, OutputStream os);
 }

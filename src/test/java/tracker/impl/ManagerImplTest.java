@@ -10,9 +10,9 @@ import org.junit.Test;
 
 import com.google.protobuf.ByteString;
 
-import tracker.Events.EventType;
-import tracker.Events.Event;
 import tracker.datatypes.Node;
+import tracker.datatypes.Events.Event;
+import tracker.datatypes.Events.EventType;
 import tracker.impl.ManagerImpl;
 
 public class ManagerImplTest {
@@ -23,8 +23,8 @@ public class ManagerImplTest {
     public void setUp() {
         port = ThreadLocalRandom.current().nextInt(8000, 9000);
         manager = new ManagerImpl(port, "http://localhost:" + port + "/register", "http://localhost:" + port + "/event",
-                12, System.out);
-        manager.start();
+                12);
+        manager.setEventStreams(System.in, System.out);
     }
     @Test
     public void testWorkerCreated() {
